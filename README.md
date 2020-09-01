@@ -4,7 +4,7 @@ Python program to convert TDC Wholesale DSL net data excel to KML
 
 Why?
 ----
-TDCtoKML is made to generate an KML file from an spreadsheet found on the [TDC wholesale](https://wholesale.tdc.dk) for all TDC centraloffices.
+TDCtoKML is made to generate an KML file from an spreadsheet found on the [TDC wholesale](https://wholesale.tdc.dk) website for all TDC centraloffices.
 
 How?
 ----
