@@ -22,3 +22,6 @@ venv.bak/
 
 # vscode config
 .vscode
+
+# Ignore excel files
+*.xlsx
