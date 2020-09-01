@@ -5,6 +5,12 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+pre-commit = "*"
+black = "*"
+flake8 = "*"
+pydocstyle = "*"
+isort = "*"
+bandit = "*"
 
 [packages]
 pyproj = "*"
@@ -14,3 +20,6 @@ xlrd = "*"
 
 [requires]
 python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
