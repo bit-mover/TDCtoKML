@@ -25,3 +25,6 @@ venv.bak/
 
 # Ignore excel files
 *.xlsx
+
+# Ignore output kml files
+*.kml
