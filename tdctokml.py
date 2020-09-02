@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Python program to convert TDC Wholesale DSL net data excel to KML."""
 import argparse
+from typing import Tuple
 
 import pandas as pd
 import simplekml
 from pyproj import Transformer
 
 
-def utm32ed50_to_wgs84(coord_x, coord_y):
+def utm32ed50_to_wgs84(coord_x: int, coord_y: int) -> Tuple[float, float]:
     """Transform coordinates.
 
     TDC uses an utm32ed50 (EPSG:23032) projection and we need it in WGS84 (EPSG:4326)
@@ -20,7 +21,7 @@ def utm32ed50_to_wgs84(coord_x, coord_y):
     return lon, lat
 
 
-def read_spreadsheet(filename):
+def read_spreadsheet(filename: str):
     """Read the TDC spreadsheet and parse needed sheets.
 
     Return the first sheet (info) and the "Adresser og koordinater" sheet
@@ -31,15 +32,15 @@ def read_spreadsheet(filename):
     return info_sheet, centraloffices_sheet
 
 
-def find_spreadsheet_date(info_sheet):
+def find_spreadsheet_date(info_sheet) -> str:
     """Overly complicated way to get date of the spreadsheet."""
     # set date to something
     # TODO: consider getting the date from the filename instead
-    date = "00-00-0000"
-    info_list = info_sheet.to_dict("records")
+    date: str = "00-00-0000"
+    info_list: dict = info_sheet.to_dict("records")
     for row in info_list:
         if "Denne udgave viser status pr" in str(row["Oversigt over lister"]):
-            excel_date = row["Oversigt over lister"].split(": ")
+            excel_date: str = row["Oversigt over lister"].split(": ")
             date = excel_date[1]
     return date
 
@@ -55,7 +56,7 @@ args = parser.parse_args()
 info, centraloffices = read_spreadsheet(args.input_file)
 
 # use the info sheet to find the document date
-document_date = find_spreadsheet_date(info)
+document_date: str = find_spreadsheet_date(info)
 
 # Start generating the KML file
 # Create simpleKML object
