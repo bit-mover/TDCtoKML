@@ -43,3 +43,4 @@ ipython_config.py
 
 # Ignore output kml files
 *.kml
+*.kmz
