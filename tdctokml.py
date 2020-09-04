@@ -45,65 +45,132 @@ def find_spreadsheet_date(info_sheet) -> str:
     return date
 
 
-# Create the parser
-parser = argparse.ArgumentParser(description="Convert TDC xsls to kml files")
-parser.add_argument("-i", "--input-file", action="store", type=str, required=True)
-parser.add_argument("-o", "--output-file", action="store", type=str, default="tdc.kml")
-parser.add_argument("-d", "--debug", action="store_true", default=False)
-args = parser.parse_args()
+def generate_filename(document_date: str, args):
+    """Generate a filename depending on CLI arguments."""
+    if args.output_file:
+        return args.output_file
+    return f"tdc-{document_date}"
 
-# read the input file and out info and central offices
-info, centraloffices = read_spreadsheet(args.input_file)
 
-# use the info sheet to find the document date
-document_date: str = find_spreadsheet_date(info)
-
-# Start generating the KML file
-# Create simpleKML object
-kml = simplekml.Kml()
-kml.document.name = f"TDC sites from {document_date}"
-
-# Generate a dictionary from the central offices output
-co_dict = centraloffices.to_dict("records")
-
-# Generate folders for the different house types
-folder_centralbygning = kml.newfolder(name="Centralbygning")
-folder_teknikhus = kml.newfolder(name="Teknikhus")
-folder_teknikrum = kml.newfolder(name="Teknikrum")
-folder_teknikskab = kml.newfolder(name="Teknikskab")
-folder_misc = kml.newfolder(name="misc")
-
-# loop through all COs
-for co in co_dict:
-    # Create folders for different house types, also include a misc if soemthing new shows up
-    if co["Hustype"] == "Centralbygning":
-        folder = folder_centralbygning
-    elif co["Hustype"] == "Teknikhus":
-        folder = folder_teknikhus
-    elif co["Hustype"] == "Teknikrum":
-        folder = folder_teknikrum
-    elif co["Hustype"] == "Teknikskab":
-        folder = folder_teknikskab
-    else:
-        folder = folder_misc
-    # If debug is set print out house name, type and CMP category
-    if args.debug:
-        print(
-            f"Hus: {co['Hus']}, Hus type: {co['Hustype']}, CMP Kategori: {co['CMP kategori']}"
-        )
-    longitude, latitude = utm32ed50_to_wgs84(co["X-koordinat"], co["Y-koordinat"])
-    pnt = folder.newpoint()
-    pnt.name = co["Hus"]
-    pnt.coords = [(longitude, latitude)]
-    pnt.address = f"{co['Gadenavn']} {co['Nr']}, {co['Post nr.']} {co['Post distrikt']}"
-    pnt.description = (
-        f"Forkortelse: {(co['Fork'])}\n"
-        f"Adresse: {co['Gadenavn']} {co['Nr']}, {co['Post nr.']} {co['Post distrikt']}\n"
-        f"Hus type: {co['Hustype']}\n"
-        f"CMP Kategori: {co['CMP kategori']}\n"
-        f"NGA: {co['NGA']}\n"
-        f"Vectoring: {co['Vectoring']}\n"
-        f"dæmpning: {co['Dæmpn.']}\n"
-        f"Kernepunkt: {co['Kernepunkt']}"
+def parse_args():
+    """Use argparse to parse commandline arguments."""
+    # Create the parser
+    parser = argparse.ArgumentParser(description="Convert TDC xsls to kml files")
+    parser.add_argument(
+        "-i",
+        "--input-file",
+        action="store",
+        type=str,
+        required=True,
+        help="Input file name, usually 0214_Wholesale_DSL_net_data_$date.xsls",
     )
-kml.save(args.output_file)
+    parser.add_argument(
+        "-o",
+        "--output-file",
+        action="store",
+        type=str,
+        help="Outfile file name, without the file suffix (default: tdc-$document_date)",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        default=False,
+        help="Add verbose output while running",
+    )
+    parser.add_argument(
+        "-k",
+        "--kml",
+        action="store_true",
+        default=False,
+        help="Output kml format, uncompressed (default: kmz)",
+    )
+
+    return parser.parse_args()
+
+
+def generate_kml(document_date: str, centraloffices, filename: str, args):
+    """Generate KML file."""
+    # Start generating the KML file
+    # Create simpleKML object
+    kml = simplekml.Kml()
+    kml.document.name = f"TDC sites from {document_date}"
+
+    # Generate a dictionary from the central offices output
+    central_offices_dict = centraloffices.to_dict("records")
+
+    # Generate folders for the different house types
+    folder_centralbygning = kml.newfolder(name="Centralbygning")
+    folder_teknikhus = kml.newfolder(name="Teknikhus")
+    folder_teknikrum = kml.newfolder(name="Teknikrum")
+    folder_teknikskab = kml.newfolder(name="Teknikskab")
+    folder_misc = kml.newfolder(name="misc")
+
+    # loop through all COs
+    for central_office in central_offices_dict:
+        # Create folders for different house types, also include a misc if soemthing new shows up
+        if central_office["Hustype"] == "Centralbygning":
+            folder = folder_centralbygning
+        elif central_office["Hustype"] == "Teknikhus":
+            folder = folder_teknikhus
+        elif central_office["Hustype"] == "Teknikrum":
+            folder = folder_teknikrum
+        elif central_office["Hustype"] == "Teknikskab":
+            folder = folder_teknikskab
+        else:
+            folder = folder_misc
+        # If debug is set print out house name, type and CMP category
+        if args.verbose:
+            print(
+                f"Hus: {central_office['Hus']}, "
+                f"Hus type: {central_office['Hustype']}, "
+                f"CMP Kategori: {central_office['CMP kategori']}"
+            )
+        longitude, latitude = utm32ed50_to_wgs84(
+            central_office["X-koordinat"], central_office["Y-koordinat"]
+        )
+        address: str = (
+            f"{central_office['Gadenavn']} {central_office['Nr']}, "
+            f"{central_office['Post nr.']} {central_office['Post distrikt']}"
+        )
+        pnt = folder.newpoint()
+        pnt.name = central_office["Hus"]
+        pnt.coords = [(longitude, latitude)]
+        pnt.address = address
+        pnt.description = (
+            f"Forkortelse: {(central_office['Fork'])}\n"
+            f"Adresse: {address}\n"
+            f"Hus type: {central_office['Hustype']}\n"
+            f"CMP Kategori: {central_office['CMP kategori']}\n"
+            f"NGA: {central_office['NGA']}\n"
+            f"Vectoring: {central_office['Vectoring']}\n"
+            f"dæmpning: {central_office['Dæmpn.']}\n"
+            f"Kernepunkt: {central_office['Kernepunkt']}"
+        )
+
+    if args.kml:
+        if args.verbose:
+            print(f"Saving KML file, {filename}.kml")
+        kml.save(filename + ".kml")
+    else:
+        if args.verbose:
+            print(f"Saving KMZ file, {filename}.kmz")
+        kml.savekmz(filename + ".kmz")
+
+
+def main():
+    """Main function to collect all data and write the final KML file."""
+    # parse command line arguments
+    args = parse_args()
+    # read the input file and out info and central offices
+    info, centraloffices = read_spreadsheet(args.input_file)
+    # use the info sheet to find the document date
+    document_date: str = find_spreadsheet_date(info)
+    #
+    filename: str = generate_filename(document_date, args)
+    # Generate KML file
+    generate_kml(document_date, centraloffices, filename, args)
+
+
+if __name__ == "__main__":
+    main()
