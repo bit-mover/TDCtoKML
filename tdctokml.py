@@ -128,16 +128,18 @@ def generate_kml(document_date: str, centraloffices, filename: str, args):
                 f"Hus type: {central_office['Hustype']}, "
                 f"CMP Kategori: {central_office['CMP kategori']}"
             )
-        longitude, latitude = utm32ed50_to_wgs84(
-            central_office["X-koordinat"], central_office["Y-koordinat"]
-        )
+        # Create an address variable because we are using it twice
         address: str = (
             f"{central_office['Gadenavn']} {central_office['Nr']}, "
             f"{central_office['Post nr.']} {central_office['Post distrikt']}"
         )
         pnt = folder.newpoint()
         pnt.name = central_office["Hus"]
-        pnt.coords = [(longitude, latitude)]
+        pnt.coords = [
+            utm32ed50_to_wgs84(
+                central_office["X-koordinat"], central_office["Y-koordinat"]
+            )
+        ]
         pnt.address = address
         pnt.description = (
             f"Forkortelse: {(central_office['Fork'])}\n"
