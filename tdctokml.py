@@ -144,7 +144,7 @@ def generate_kml(document_date: str, centraloffices, filename: str, args):
             f"CMP Kategori: {central_office['CMP kategori']}\n"
             f"NGA: {central_office['NGA']}\n"
             f"Vectoring: {central_office['Vectoring']}\n"
-            f"dæmpning: {central_office['Dæmpn.']}\n"
+            f"Dæmpning: {central_office['Dæmpn.']}\n"
             f"Kernepunkt: {central_office['Kernepunkt']}"
         )
 
