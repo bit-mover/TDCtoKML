@@ -100,25 +100,27 @@ def generate_kml(document_date: str, centraloffices, filename: str, args):
     central_offices_dict = centraloffices.to_dict("records")
 
     # Generate folders for the different house types
-    folder_centralbygning = kml.newfolder(name="Centralbygning")
-    folder_teknikhus = kml.newfolder(name="Teknikhus")
-    folder_teknikrum = kml.newfolder(name="Teknikrum")
-    folder_teknikskab = kml.newfolder(name="Teknikskab")
-    folder_misc = kml.newfolder(name="misc")
+    folder_dict = {
+        "Centralbygning": kml.newfolder(name="Centralbygning"),
+        "Teknikhus": kml.newfolder(name="Teknikhus"),
+        "Teknikrum": kml.newfolder(name="Teknikrum"),
+        "Teknikskab": kml.newfolder(name="Teknikskab"),
+        "Misc": kml.newfolder(name="Misc"),
+    }
 
     # loop through all COs
     for central_office in central_offices_dict:
         # Create folders for different house types, also include a misc if soemthing new shows up
         if central_office["Hustype"] == "Centralbygning":
-            folder = folder_centralbygning
+            folder = folder_dict["Centralbygning"]
         elif central_office["Hustype"] == "Teknikhus":
-            folder = folder_teknikhus
+            folder = folder_dict["Teknikhus"]
         elif central_office["Hustype"] == "Teknikrum":
-            folder = folder_teknikrum
+            folder = folder_dict["Teknikrum"]
         elif central_office["Hustype"] == "Teknikskab":
-            folder = folder_teknikskab
+            folder = folder_dict["Teknikskab"]
         else:
-            folder = folder_misc
+            folder = folder_dict["Misc"]
         # If debug is set print out house name, type and CMP category
         if args.verbose:
             print(
