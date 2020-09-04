@@ -75,46 +75,35 @@ folder_misc = kml.newfolder(name="misc")
 
 # loop through all COs
 for co in co_dict:
-    # break out the co dict into variables,
-    # TODO: I could not get it working in f-string without it
-    hus = co["Hus"]
-    forkortelse = co["Fork"]
-    gadenavn = co["Gadenavn"]
-    gadenummer = co["Nr"]
-    postnummer = co["Post nr."]
-    bynavn = co["Post distrikt"]
-    hustype = co["Hustype"]
-    cmp_kat = co["CMP kategori"]
-    nga = co["NGA"]
-    vectoring = co["Vectoring"]
-    daempning = co["Dæmpn."]
-    kernepunkt = co["Kernepunkt"]
-
     # Create folders for different house types, also include a misc if soemthing new shows up
-    if hustype == "Centralbygning":
+    if co["Hustype"] == "Centralbygning":
         folder = folder_centralbygning
-    elif hustype == "Teknikhus":
+    elif co["Hustype"] == "Teknikhus":
         folder = folder_teknikhus
-    elif hustype == "Teknikrum":
+    elif co["Hustype"] == "Teknikrum":
         folder = folder_teknikrum
-    elif hustype == "Teknikskab":
+    elif co["Hustype"] == "Teknikskab":
         folder = folder_teknikskab
     else:
         folder = folder_misc
     # If debug is set print out house name, type and CMP category
     if args.debug:
-        print(f"{hus}, {hustype}, {cmp_kat}")
+        print(
+            f"Hus: {co['Hus']}, Hus type: {co['Hustype']}, CMP Kategori: {co['CMP kategori']}"
+        )
     longitude, latitude = utm32ed50_to_wgs84(co["X-koordinat"], co["Y-koordinat"])
     pnt = folder.newpoint()
     pnt.name = co["Hus"]
     pnt.coords = [(longitude, latitude)]
-    pnt.address = f"{gadenavn} {gadenummer}, {postnummer} {bynavn}"
+    pnt.address = f"{co['Gadenavn']} {co['Nr']}, {co['Post nr.']} {co['Post distrikt']}"
     pnt.description = (
-        f"Adresse: {gadenavn} {gadenummer}, {postnummer} {bynavn}\n"
-        f"Hus type: {hustype}\n"
-        f"CMP Kategori: {cmp_kat}\n"
-        f"NGA: {nga}\nVectoring: {vectoring}\n"
-        f"dæmpning: {daempning}\n"
-        f"Kernepunkt: {kernepunkt}"
+        f"Forkortelse: {(co['Fork'])}\n"
+        f"Adresse: {co['Gadenavn']} {co['Nr']}, {co['Post nr.']} {co['Post distrikt']}\n"
+        f"Hus type: {co['Hustype']}\n"
+        f"CMP Kategori: {co['CMP kategori']}\n"
+        f"NGA: {co['NGA']}\n"
+        f"Vectoring: {co['Vectoring']}\n"
+        f"dæmpning: {co['Dæmpn.']}\n"
+        f"Kernepunkt: {co['Kernepunkt']}"
     )
 kml.save(args.output_file)
