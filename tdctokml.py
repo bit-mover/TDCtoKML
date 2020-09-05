@@ -13,8 +13,6 @@ def utm32ed50_to_wgs84(coord_x: int, coord_y: int) -> Tuple[float, float]:
 
     TDC uses an utm32ed50 (EPSG:23032) projection and we need it in WGS84 (EPSG:4326)
     """
-    # Transform from utm32ed50 (EPSG:23032) projection
-    # from TDC excel sheet to WGS84 (EPSG:4326)
     transformer = Transformer.from_crs("EPSG:23032", "EPSG:4326")
 
     lat, lon = transformer.transform(coord_x, coord_y)
