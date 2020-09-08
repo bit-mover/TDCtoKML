@@ -16,7 +16,7 @@ def utm32ed50_to_wgs84(coord_x: int, coord_y: int) -> Tuple[float, float]:
     transformer = Transformer.from_crs("EPSG:23032", "EPSG:4326")
 
     lat, lon = transformer.transform(coord_x, coord_y)
-    return lon, lat
+    return lat, lon
 
 
 def read_spreadsheet(filename: str) -> Tuple[Dict[str, str], Dict[str, str]]:
@@ -117,12 +117,17 @@ def generate_kml(
             folder = folder_dict["Teknikskab"]
         else:
             folder = folder_dict["Misc"]
+        # get coordinates
+        latitude, longitude = utm32ed50_to_wgs84(
+            central_office["X-koordinat"], central_office["Y-koordinat"]
+        )
         # If debug is set print out house name, type and CMP category
         if args.verbose:
             print(
                 f"Hus: {central_office['Hus']}, "
                 f"Hus type: {central_office['Hustype']}, "
-                f"CMP Kategori: {central_office['CMP kategori']}"
+                f"CMP Kategori: {central_office['CMP kategori']}, "
+                f"Coords: {latitude}, {longitude}"
             )
         # Create an address variable because we are using it twice
         address: str = (
@@ -131,11 +136,8 @@ def generate_kml(
         )
         pnt = folder.newpoint()
         pnt.name = central_office["Hus"]
-        pnt.coords = [
-            utm32ed50_to_wgs84(
-                central_office["X-koordinat"], central_office["Y-koordinat"]
-            )
-        ]
+        # pnt.coords needs the coordinates in the order longitude then latitude
+        pnt.coords = [(longitude, latitude)]
         pnt.address = address
         pnt.description = (
             f"Forkortelse: {(central_office['Fork'])}\n"
