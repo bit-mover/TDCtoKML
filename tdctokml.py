@@ -36,7 +36,7 @@ def find_spreadsheet_date(info_sheet_dict: Dict[Any, str]) -> str:
     # TODO: consider getting the date from the filename instead
     date: str = "00-00-0000"
     for row in info_sheet_dict:
-        if "Denne udgave viser status pr" in row["Oversigt over lister"]:
+        if "Denne udgave viser status pr" in str(row["Oversigt over lister"]):
             excel_date: List[str] = row["Oversigt over lister"].split(": ")
             date = excel_date[1]
     return date
