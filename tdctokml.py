@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Python program to convert TDC Wholesale DSL net data excel to KML."""
 import argparse
-from typing import Tuple
+from typing import Any, Dict, List, Tuple
 
-import pandas as pd
-import simplekml
-from pyproj import Transformer
+import pandas as pd  # type: ignore
+import simplekml  # type: ignore
+from pyproj import Transformer  # type: ignore
 
 
 def utm32ed50_to_wgs84(coord_x: int, coord_y: int) -> Tuple[float, float]:
@@ -19,7 +19,7 @@ def utm32ed50_to_wgs84(coord_x: int, coord_y: int) -> Tuple[float, float]:
     return lon, lat
 
 
-def read_spreadsheet(filename: str):
+def read_spreadsheet(filename: str) -> Tuple[Dict[str, str], Dict[str, str]]:
     """Read the TDC spreadsheet and parse needed sheets.
 
     Return the first sheet (info) and the "Adresser og koordinater" sheet
@@ -27,30 +27,29 @@ def read_spreadsheet(filename: str):
     info_sheet = pd.read_excel(filename, sheet_name="INFO")
     centraloffices_sheet = pd.read_excel(filename, sheet_name="Adresser og koordinater")
 
-    return info_sheet, centraloffices_sheet
+    return info_sheet.to_dict("records"), centraloffices_sheet.to_dict("records")
 
 
-def find_spreadsheet_date(info_sheet) -> str:
+def find_spreadsheet_date(info_sheet_dict: Dict[Any, str]) -> str:
     """Overly complicated way to get date of the spreadsheet."""
     # set date to something
     # TODO: consider getting the date from the filename instead
     date: str = "00-00-0000"
-    info_list: dict = info_sheet.to_dict("records")
-    for row in info_list:
-        if "Denne udgave viser status pr" in str(row["Oversigt over lister"]):
-            excel_date: str = row["Oversigt over lister"].split(": ")
+    for row in info_sheet_dict:
+        if "Denne udgave viser status pr" in row["Oversigt over lister"]:
+            excel_date: List[str] = row["Oversigt over lister"].split(": ")
             date = excel_date[1]
     return date
 
 
-def generate_filename(document_date: str, args):
+def generate_filename(document_date: str, args: Any) -> str:
     """Generate a filename depending on CLI arguments."""
     if args.output_file:
-        return args.output_file
+        return str(args.output_file)
     return f"tdc-{document_date}"
 
 
-def parse_args():
+def parse_args() -> Any:
     """Use argparse to parse commandline arguments."""
     # Create the parser
     parser = argparse.ArgumentParser(description="Convert TDC xsls to kml files")
@@ -87,15 +86,14 @@ def parse_args():
     return parser.parse_args()
 
 
-def generate_kml(document_date: str, centraloffices, filename: str, args):
+def generate_kml(
+    document_date: str, central_offices_dict: Any, filename: str, args: Any
+) -> None:
     """Generate KML file."""
     # Start generating the KML file
     # Create simpleKML object
     kml = simplekml.Kml()
     kml.document.name = f"TDC sites from {document_date}"
-
-    # Generate a dictionary from the central offices output
-    central_offices_dict = centraloffices.to_dict("records")
 
     # Generate folders for the different house types
     folder_dict = {
@@ -160,7 +158,7 @@ def generate_kml(document_date: str, centraloffices, filename: str, args):
         kml.savekmz(filename + ".kmz")
 
 
-def main():
+def main() -> None:
     """Main function to collect all data and write the final KML file."""
     # parse command line arguments
     args = parse_args()
