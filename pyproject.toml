@@ -14,7 +14,6 @@ openpyxl = "3.0.10"
 
 [tool.poetry.dev-dependencies]
 pylint = "2.14.1"
-pre-commit = "2.19.0"
 black = "22.3.0"
 flake8 = "4.0.1"
 pydocstyle = "6.1.1"
