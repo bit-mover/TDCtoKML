@@ -22,6 +22,25 @@ jobs:
     - name: Install dependencies
       run: |
         poetry install
+    - name: Verify black has been run
+      run: |
+        poetry run black --check $(git ls-files '*.py')
+    - name: Verify isort has been run
+      run: |
+        poetry run isort --check $(git ls-files '*.py')
     - name: Analysing the code with pylint
       run: |
         poetry run pylint $(git ls-files '*.py')
+    - name: Analysing the code with flake8
+      run: |
+        poetry run flake8 $(git ls-files '*.py')
+    - name: Analysing the code with pytest
+      run: |
+        poetry run pytest $(git ls-files '*.py')
+    - name: Analysing the code with pydocstyle
+      run: |
+        poetry run pydocstyle $(git ls-files '*.py')
+    - name: Analysing the code with mypy
+      run: |
+        poetry run mypy --strict $(git ls-files '*.py')
+
