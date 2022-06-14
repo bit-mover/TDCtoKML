@@ -35,7 +35,6 @@ def read_spreadsheet(filename: str) -> Tuple[Dict[str, str], Dict[str, str]]:
 def find_spreadsheet_date(info_sheet_dict: Dict[Any, str]) -> str:
     """Overly complicated way to get date of the spreadsheet."""
     # set date to something
-    # TODO: consider getting the date from the filename instead
     date: str = "00-00-0000"
     for row in info_sheet_dict:
         if "Denne udgave viser status pr" in str(row["Oversigt over lister"]):
