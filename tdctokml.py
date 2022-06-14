@@ -5,18 +5,20 @@ from typing import Any, Dict, List, Tuple
 
 import pandas as pd  # type: ignore
 import simplekml  # type: ignore
-from pyproj import Transformer  # type: ignore
+from pyproj import Transformer
 
 
 def utm32ed50_to_wgs84(coord_x: int, coord_y: int) -> Tuple[float, float]:
     """Transform coordinates.
 
-    TDC uses an utm32ed50 (EPSG:23032) projection and we need it in WGS84 (EPSG:4326)
+    TDC uses an utm32ed50 (EPSG:23032) projection and KML uses WGS84 (EPSG:4326)
     """
     transformer = Transformer.from_crs("EPSG:23032", "EPSG:4326")
 
-    lat, lon = transformer.transform(coord_x, coord_y)
-    return lat, lon
+    coords = transformer.transform(coord_x, coord_y)
+    if coords is None:
+        return (0.0, 0.0)
+    return coords
 
 
 def read_spreadsheet(filename: str) -> Tuple[Dict[str, str], Dict[str, str]]:
@@ -118,7 +120,7 @@ def generate_kml(
         else:
             folder = folder_dict["Misc"]
         # get coordinates
-        latitude, longitude = utm32ed50_to_wgs84(
+        (latitude, longitude) = utm32ed50_to_wgs84(
             central_office["X-koordinat"], central_office["Y-koordinat"]
         )
         # If debug is set print out house name, type and CMP category
