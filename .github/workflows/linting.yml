@@ -10,13 +10,12 @@ jobs:
         python-version: ["3.9", "3.10"]
     steps:
       - uses: actions/checkout@v3
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
       - name: Install dependencies
         run: poetry install
       - name: Verify black has been run
