@@ -1,27 +1,24 @@
 #!/usr/bin/env python3
 """Python program to convert TDC Wholesale DSL net data excel to KML."""
 import argparse
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import pandas as pd  # type: ignore
 import simplekml  # type: ignore
 from pyproj import Transformer
 
 
-def utm32ed50_to_wgs84(coord_x: int, coord_y: int) -> Tuple[float, float]:
+def utm32ed50_to_wgs84(coord_x: int, coord_y: int) -> tuple[float, float]:
     """Transform coordinates.
 
     TDC uses an utm32ed50 (EPSG:23032) projection and KML uses WGS84 (EPSG:4326)
     """
     transformer = Transformer.from_crs("EPSG:23032", "EPSG:4326")
 
-    coords = transformer.transform(coord_x, coord_y)
-    if coords is None:
-        return (0.0, 0.0)
-    return coords
+    return transformer.transform(coord_x, coord_y)
 
 
-def read_spreadsheet(filename: str) -> Tuple[Dict[str, str], Dict[str, str]]:
+def read_spreadsheet(filename: str) -> tuple[dict[str, str], dict[str, str]]:
     """Read the TDC spreadsheet and parse needed sheets.
 
     Return the first sheet (info) and the "Adresser og koordinater" sheet
@@ -32,13 +29,13 @@ def read_spreadsheet(filename: str) -> Tuple[Dict[str, str], Dict[str, str]]:
     return info_sheet.to_dict("records"), centraloffices_sheet.to_dict("records")
 
 
-def find_spreadsheet_date(info_sheet_dict: Dict[Any, str]) -> str:
+def find_spreadsheet_date(info_sheet_dict: dict[Any, str]) -> str:
     """Overly complicated way to get date of the spreadsheet."""
     # set date to something
     date: str = "00-00-0000"
     for row in info_sheet_dict:
         if "Denne udgave viser status pr" in str(row["Oversigt over lister"]):
-            excel_date: List[str] = row["Oversigt over lister"].split(": ")
+            excel_date: list[str] = row["Oversigt over lister"].split(": ")
             date = excel_date[1]
     return date
 
@@ -119,7 +116,8 @@ def generate_kml(
         else:
             folder = folder_dict["Misc"]
         # get coordinates
-        (latitude, longitude) = utm32ed50_to_wgs84(
+        # pylint: disable=unpacking-non-sequence
+        latitude, longitude = utm32ed50_to_wgs84(
             central_office["X-koordinat"], central_office["Y-koordinat"]
         )
         # If debug is set print out house name, type and CMP category
