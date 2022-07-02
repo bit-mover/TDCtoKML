@@ -121,7 +121,7 @@ def generate_kml(
 
     # loop through all COs
     for central_office in central_offices_dict:
-        # Create folders for different house types, also include a misc if soemthing new shows up
+        # Create folders for different house types
         if central_office["Hustype"] == "Centralbygning":
             folder = folder_dict["Centralbygning"]
         elif central_office["Hustype"] == "Teknikhus":
@@ -130,8 +130,6 @@ def generate_kml(
             folder = folder_dict["Teknikrum"]
         elif central_office["Hustype"] == "Teknikskab":
             folder = folder_dict["Teknikskab"]
-        else:
-            folder = folder_dict["Misc"]
         # get coordinates
         # pylint: disable=unpacking-non-sequence
         try:
