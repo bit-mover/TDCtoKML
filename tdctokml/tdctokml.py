@@ -29,6 +29,7 @@ def utm32ed50_to_wgs84(
         )
     transformer = Transformer.from_crs("EPSG:23032", "EPSG:4326")
 
+    # pylint: disable=unpacking-non-sequence
     latitude, longitude = transformer.transform(coord_x, coord_y)
 
     return (round(latitude, 5), round(longitude, 5))
