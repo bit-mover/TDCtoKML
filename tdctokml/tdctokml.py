@@ -136,7 +136,7 @@ def generate_kml(
         # pylint: disable=unpacking-non-sequence
         try:
             latitude, longitude = utm32ed50_to_wgs84(
-                int(central_office["X-koordinat"]), int(central_office["Y-koordinat"])
+                central_office["X-koordinat"], central_office["Y-koordinat"]
             )
         except CoordinatesError:
             print(
