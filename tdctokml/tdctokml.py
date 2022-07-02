@@ -1,18 +1,32 @@
 #!/usr/bin/env python3
 """Python program to convert TDC Wholesale DSL net data excel to KML."""
 import argparse
-from typing import Any
+import math
+from typing import Any, Union
 
 import pandas as pd  # type: ignore
 import simplekml  # type: ignore
 from pyproj import Transformer
 
 
-def utm32ed50_to_wgs84(coord_x: int, coord_y: int) -> tuple[float, float]:
+class CoordinatesError(Exception):
+    """Exception for cooridnate errors."""
+
+
+def utm32ed50_to_wgs84(
+    coord_x: Union[int, float], coord_y: Union[int, float]
+) -> tuple[float, float]:
     """Transform coordinates.
 
     TDC uses an utm32ed50 (EPSG:23032) projection and KML uses WGS84 (EPSG:4326)
     """
+    if math.isnan(coord_x) or math.isnan(coord_y):
+        raise CoordinatesError(f"Coordinates must not be an NaN {coord_x}, {coord_y}")
+
+    if coord_x == 0 and coord_y == 0:
+        raise CoordinatesError(
+            f"Coordinates must not both be zero {coord_x}, {coord_y}"
+        )
     transformer = Transformer.from_crs("EPSG:23032", "EPSG:4326")
 
     return transformer.transform(coord_x, coord_y)
@@ -117,9 +131,21 @@ def generate_kml(
             folder = folder_dict["Misc"]
         # get coordinates
         # pylint: disable=unpacking-non-sequence
-        latitude, longitude = utm32ed50_to_wgs84(
-            central_office["X-koordinat"], central_office["Y-koordinat"]
-        )
+        try:
+            latitude, longitude = utm32ed50_to_wgs84(
+                int(central_office["X-koordinat"]), int(central_office["Y-koordinat"])
+            )
+        except ValueError:
+            print(
+                f"Could not create wgs84 coordinates for {central_office['Hus']} with X coord:"
+                f"{central_office['X-koordinat']} and Y-coord: {central_office['Y-koordinat']}"
+            )
+            if args.verbose:
+                print("\n")
+                print("DEBUG: ")
+                print(central_office)
+            continue
+
         # If debug is set print out house name, type and CMP category
         if args.verbose:
             print(
