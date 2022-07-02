@@ -138,7 +138,7 @@ def generate_kml(
             latitude, longitude = utm32ed50_to_wgs84(
                 int(central_office["X-koordinat"]), int(central_office["Y-koordinat"])
             )
-        except ValueError:
+        except CoordinatesError:
             print(
                 f"Could not create wgs84 coordinates for {central_office['Hus']} with X coord:"
                 f"{central_office['X-koordinat']} and Y-coord: {central_office['Y-koordinat']}"
