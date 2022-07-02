@@ -1,7 +1,7 @@
 """Test TDCtoKML functions."""
 import pytest
 
-from tdctokml.tdctokml import utm32ed50_to_wgs84, CoordinatesError
+from tdctokml.tdctokml import CoordinatesError, utm32ed50_to_wgs84
 
 
 def test_utm32ed50_to_wgs84_boa() -> None:
