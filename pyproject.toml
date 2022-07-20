@@ -19,7 +19,7 @@ flake8 = "4.0.1"
 pydocstyle = "6.1.1"
 isort = "5.10.1"
 bandit = "1.7.4"
-mypy = "0.961"
+mypy = "0.971"
 pytest = "7.1.2"
 
 [tool.poetry.scripts]
