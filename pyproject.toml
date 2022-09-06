@@ -13,7 +13,7 @@ pandas = "1.4.3"
 openpyxl = "3.0.10"
 
 [tool.poetry.dev-dependencies]
-pylint = "2.14.5"
+pylint = "2.15.0"
 black = "22.8.0"
 flake8 = "5.0.4"
 pydocstyle = "6.1.1"
